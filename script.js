@@ -100,46 +100,57 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     async function splitImage(image, rows, cols) {
-        // Create a canvas to convert the image to base64
-        const canvas = document.createElement('canvas');
-        canvas.width = image.width;
-        canvas.height = image.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(image, 0, 0);
-        const imageData = canvas.toDataURL('image/png');
-
         try {
             // Show loading state
             splitBtn.disabled = true;
             splitBtn.textContent = 'Processing...';
 
-            // Send the image to the backend
-            const response = await fetch('http://localhost:5003/split-image', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    image: imageData,
-                    rows: rows,
-                    cols: cols
-                })
-            });
+            // Calculate dimensions for each piece
+            const pieceWidth = Math.floor(image.width / cols);
+            const pieceHeight = Math.floor(image.height / rows);
 
-            const data = await response.json();
-            console.log('Server response:', data);
-            
-            if (data.success) {
-                // Create download link for the zip file
-                const link = document.createElement('a');
-                link.href = data.downloadUrl;
-                link.download = 'split_images.zip';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                throw new Error(data.error || 'Unknown error occurred');
+            // Create a ZIP file
+            const zip = new JSZip();
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const folderName = `split_images_${timestamp}`;
+            const folder = zip.folder(folderName);
+
+            // Create a temporary canvas for each piece
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = pieceWidth;
+            canvas.height = pieceHeight;
+
+            // Split the image and add pieces to ZIP
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    // Clear canvas for new piece
+                    ctx.clearRect(0, 0, pieceWidth, pieceHeight);
+
+                    // Draw piece of original image onto canvas
+                    ctx.drawImage(
+                        image,
+                        j * pieceWidth, // Source X
+                        i * pieceHeight, // Source Y
+                        pieceWidth, // Source width
+                        pieceHeight, // Source height
+                        0, // Destination X
+                        0, // Destination Y
+                        pieceWidth, // Destination width
+                        pieceHeight // Destination height
+                    );
+
+                    // Convert canvas to blob and add to ZIP
+                    const pieceDataUrl = canvas.toDataURL('image/png');
+                    const pieceData = pieceDataUrl.split(',')[1];
+                    folder.file(`piece_${i + 1}_${j + 1}.png`, pieceData, {base64: true});
+                }
             }
+
+            // Generate and download ZIP file
+            const content = await zip.generateAsync({type: 'blob'});
+            saveAs(content, `${folderName}.zip`);
+
         } catch (error) {
             console.error('Error details:', error);
             alert(`Error splitting image: ${error.message || 'Please try again'}`);

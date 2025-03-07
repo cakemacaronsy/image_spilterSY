@@ -1,6 +1,6 @@
 # Image Splitter SY
 
-A web-based tool for splitting images into multiple pieces with various configurations.
+A web-based tool for splitting images into multiple pieces with various configurations. Try it live at [GitHub Pages URL].
 
 ## Features
 - Split images into different configurations:
@@ -11,30 +11,21 @@ A web-based tool for splitting images into multiple pieces with various configur
 - Drag and drop interface
 - Preview before splitting
 - Automatic zip file generation of split images
+- Runs entirely in your browser - no server needed!
 
-## Setup
-1. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+## How to Use
+1. Visit the [GitHub Pages URL]
+2. Upload an image by dragging and dropping or clicking the upload button
+3. Choose your desired split configuration
+4. Click 'SPLIT IMAGE' to generate and download your split images as a ZIP file
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Run the server:
-```bash
-python server.py
-```
-
-4. Open in browser:
-```
-http://localhost:5003
-```
+## Local Development
+To run locally:
+1. Clone this repository
+2. Open index.html in your web browser
 
 ## Technologies Used
-- Frontend: HTML, CSS, JavaScript
-- Backend: Flask (Python)
-- Image Processing: Pillow
+- HTML5 Canvas for image processing
+- JSZip for creating ZIP files
+- Pure JavaScript for all functionality
+- No server required - runs entirely in the browser!

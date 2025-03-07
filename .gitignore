@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+
+# Environment
+.env
+
+# Output files
+static/output/
+
+# macOS
+.DS_Store
